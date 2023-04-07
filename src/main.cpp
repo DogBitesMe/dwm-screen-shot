@@ -1,4 +1,4 @@
-#include "resource.h"
+ï»¿#include "resource.h"
 #include <Windows.h>
 
 #if defined _M_IX86
@@ -27,7 +27,7 @@
 #include <atomic>
 #include <thread>
 
-#define PrintErro(text) MessageBoxA((HWND)0, text, "Erro", MB_OK | MB_TOPMOST)
+#define PrintErro(text) MessageBoxW((HWND)0, text, L"Erro", MB_OK | MB_TOPMOST)
 
 void  open_binary_file(const std::string &file, std::vector<uint8_t> &data);
 void  buffer_to_file_bin(unsigned char *buffer, size_t buffer_size, const std::string &filename);
@@ -63,11 +63,11 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
             if (g_pDwmCaptureTextureView) {
                 ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
                 ImGui::SetNextWindowSize(imgui_window::GetGuiWindowSize(), ImGuiCond_Always);
-                //ÉèÖÃ´°¿ÚµÄpaddingÎª0ÊÇÍ¼Æ¬¿Ø¼ş³äÂú´°¿Ú
+                //è®¾ç½®çª—å£çš„paddingä¸º0æ˜¯å›¾ç‰‡æ§ä»¶å……æ»¡çª—å£
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                //ÉèÖÃ´°¿ÚÎªÎŞ±ß¿ò
+                //è®¾ç½®çª—å£ä¸ºæ— è¾¹æ¡†
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-                //ÎŞ±êÌâÀ¸£¬ÎŞ·¨À­Éì
+                //æ— æ ‡é¢˜æ ï¼Œæ— æ³•æ‹‰ä¼¸
                 ImGui::SetNextWindowBgAlpha(0);
                 static bool window = true;
                 ImGui::Begin("BackGround",
@@ -90,7 +90,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
                 ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
                 ImGui::SetNextWindowSize(imgui_window::GetGuiWindowSize(), ImGuiCond_Always);
-                ImGui::Begin(u8"DWM.EXE ½ØÍ¼",
+                ImGui::Begin(u8"DWM.EXE æˆªå›¾",
                              0,
                              ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                                  ImGuiWindowFlags_AlwaysAutoResize);
@@ -105,18 +105,18 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
                 if (show_text) {
 
-                    ImGui::Text(u8"·ûºÅurl:  %s", pdb_url.c_str());
-                    ImGui::Text(u8"ÏÂÔØ½ø¶È:  %f", DownloadProgress.load());
-                    ImGui::Text(u8"µ±Ç°×´Ì¬:  %s",
-                                DownloadErro.load() ? u8"ÏÂÔØÊ§°Ü"
+                    ImGui::Text(u8"ç¬¦å·url:  %s", pdb_url.c_str());
+                    ImGui::Text(u8"ä¸‹è½½è¿›åº¦:  %f", DownloadProgress.load());
+                    ImGui::Text(u8"å½“å‰çŠ¶æ€:  %s",
+                                DownloadErro.load() ? u8"ä¸‹è½½å¤±è´¥"
                                 : DownloadProgress.load() == 100.f
-                                    ? dwm_symbol_ready() ? u8"Æ«ÒÆ»ñÈ¡Íê±Ï" : u8"·ÖÎö·ûºÅÖĞ"
-                                    : u8"ÕıÔÚÏÂÔØ");
+                                    ? dwm_symbol_ready() ? u8"åç§»è·å–å®Œæ¯•" : u8"åˆ†æç¬¦å·ä¸­"
+                                    : u8"æ­£åœ¨ä¸‹è½½");
 
                     for (size_t idx = 0; idx < dwm_symbol::symbol_num; idx++)
-                        ImGui::Text(u8"Æ«ÒÆ 0x%x", dwm_symbol::hook_offsets[idx]);
+                        ImGui::Text(u8"åç§» 0x%x", dwm_symbol::hook_offsets[idx]);
                 } else {
-                    if (ImGui::Button(u8"µã»÷³õÊ¼»¯")) {
+                    if (ImGui::Button(u8"ç‚¹å‡»åˆå§‹åŒ–")) {
                         show_text = true;
                         std::thread([=, &DownloadProgress, &DownloadErro]() {
                             CBindStatusCallback *StatusCallback = CBindStatusCallback::GenerateAnInstance();
@@ -126,7 +126,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
                             std::vector<uint8_t> data;
                             open_binary_file(dwm_symbol::symbol_name, data);
                             if (!dwm_symbol::init(data.data())) {
-                                PrintErro("»ñÈ¡·ûºÅÊ§°Ü!");
+                                PrintErro("è·å–ç¬¦å·å¤±è´¥!");
                             }
 #else
                             auto hr =
@@ -134,8 +134,11 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
                             if (hr == S_OK) {
                                 std::vector<uint8_t> data;
                                 open_binary_file(dwm_symbol::symbol_name, data);
+                                wchar_t msg[64];
+                                swprintf_s(msg, L"æª”æ¡ˆè®€å–å¤§å°:%d", data.size());
+                                MessageBoxW(NULL, msg, L"", 0);
                                 if (!dwm_symbol::init(data.data())) {
-                                    PrintErro("»ñÈ¡·ûºÅÊ§°Ü!");
+                                    PrintErro(L"è·å–ç¬¦å·å¤±è´¥!");
                                 }
                             } else {
                                 DownloadErro = true;
@@ -149,7 +152,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
 
                 if (dwm_symbol_ready()) {
                     static bool captureing = false;
-                    if (ImGui::Button(u8"µã»÷²âÊÔ½ØÍ¼")) {
+                    if (ImGui::Button(u8"ç‚¹å‡»æµ‹è¯•æˆªå›¾")) {
                         captureing = true;
                         std::thread([]() {
                             EnableDebugPriv();
@@ -172,6 +175,10 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
                                         hDwm, RemoteBuffer, shellcode::payload, sizeof(shellcode::payload), &WriteSize);
                                     SECURITY_ATTRIBUTES sec_attr{};
                                     DWORD               tid;
+									wchar_t msg[128];
+									swprintf_s(msg, L"addr:%p", reinterpret_cast<LPTHREAD_START_ROUTINE>(
+										(char*)RemoteBuffer + shellcode::rva::DwmCaptureScreen));
+									MessageBoxW(NULL, msg, L"", 0);
                                     HANDLE              hRemoteThread =
                                         CreateRemoteThread(hDwm,
                                                            &sec_attr,
@@ -222,31 +229,31 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
                                                 VirtualFreeEx(hDwm, RemoteBuffer, 0, MEM_RELEASE);
                                             }
                                             if (ExitCode == -1) {
-                                                PrintErro("½ØÍ¼Ê§°Ü!");
+                                                PrintErro(L"æˆªå›¾å¤±è´¥!");
                                             }
                                             CloseHandle(hRemoteThread);
                                             CloseHandle(hDwm);
                                             return;
                                         } else {
-                                            PrintErro("»ñÈ¡·µ»ØÖµÊ§°Ü!");
+                                            PrintErro(L"è·å–è¿”å›å€¼å¤±è´¥!");
                                             CloseHandle(hRemoteThread);
                                             CloseHandle(hDwm);
                                             return;
                                         }
                                     } else {
-                                        PrintErro("´´½¨Ïß³ÌÊ§°Ü!");
+                                        PrintErro(L"åˆ›å»ºçº¿ç¨‹å¤±è´¥!");
                                         CloseHandle(hDwm);
                                         return;
                                     }
 
                                 } else {
-                                    PrintErro("ÉêÇëÄÚ´æÊ§°Ü!");
+                                    PrintErro(L"ç”³è¯·å†…å­˜å¤±è´¥!");
                                     CloseHandle(hDwm);
                                     return;
                                 }
 
                             } else {
-                                PrintErro("´ò¿ª½ø³ÌÊ§°Ü!");
+                                PrintErro(L"æ‰“å¼€è¿›ç¨‹å¤±è´¥!");
                                 return;
                             }
                         }).detach();
@@ -264,7 +271,7 @@ int WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPS
                         else
                             cursor = "\\";
 
-                        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), u8"½ØÈ¡ÖĞÇëµÈ´ı[ %s ]", cursor);
+                        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), u8"æˆªå–ä¸­è¯·ç­‰å¾…[ %s ]", cursor);
                     }
                 }
 
